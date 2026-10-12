@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en-IE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Gerry's Brain: finished jobs, priced fast. Internal alpha for Byrne Building Services, Naas.">
+<meta name="theme-color" content="#17403d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gerry's Brain">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Gerry's Brain</title>
+<style>
+/* Layout: native-style app shell (top bar, scrolling body, bottom tab bar); on wide screens it sits in a phone frame beside a short pitch */
+:root{
+  --bg:#f2f5f4; --surface:#ffffff; --ink:#1b2928; --muted:#5b6a68; --line:#dbe2e0; --bar:#f9fbfa;
+  --brand:#1f5b57; --brand-ink:#ffffff; --brand-soft:#e2eeeb; --copper:#b0662f; --copper-soft:#f6eadf;
+  --amber:#b7860b; --late:#b3261e; --late-soft:#fbe8e6; --ok:#2e7d4f; --ok-soft:#e4f2e9;
+  --band:#17403d; --band-ink:#eef5f3; --band-muted:#a8c3be; --band-chip:#24524e;
+  --desk:#dde5e2; --frame:#1a2322; --scrim:rgba(10,20,19,.45);
+  --ui:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --num:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sat:0px; --sab:0px; --r:16px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111716; --surface:#19211f; --ink:#e3eae8; --muted:#97a6a3; --line:#2b3634; --bar:#151c1b;
+  --brand:#5fb3aa; --brand-ink:#0d1413; --brand-soft:#1e2d2b; --copper:#d9915a; --copper-soft:#33251a;
+  --amber:#e0b44a; --late:#f2847a; --late-soft:#3a1d1b; --ok:#7fcf9c; --ok-soft:#1a2d21;
+  --band:#0c1918; --band-ink:#e6efed; --band-muted:#8fa9a4; --band-chip:#1b302e;
+  --desk:#0a0f0e; --frame:#000000; --scrim:rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111716; --surface:#19211f; --ink:#e3eae8; --muted:#97a6a3; --line:#2b3634; --bar:#151c1b;
+  --brand:#5fb3aa; --brand-ink:#0d1413; --brand-soft:#1e2d2b; --copper:#d9915a; --copper-soft:#33251a;
+  --amber:#e0b44a; --late:#f2847a; --late-soft:#3a1d1b; --ok:#7fcf9c; --ok-soft:#1a2d21;
+  --band:#0c1918; --band-ink:#e6efed; --band-muted:#8fa9a4; --band-chip:#1b302e;
+  --desk:#0a0f0e; --frame:#000000; --scrim:rgba(0,0,0,.6); color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 var(--ui);overflow:hidden}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+
+.stage{height:100%;display:flex;justify-content:center}
+.pitch{display:none}
+.phone{position:relative;width:100%;max-width:560px;height:100%;display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+@media (min-width:860px) and (min-height:640px){
+  body{background:var(--desk)}
+  .stage{align-items:center;gap:64px;padding:20px}
+  .phone{width:392px;height:min(846px,calc(100% - 8px));border:11px solid var(--frame);border-radius:50px;box-shadow:0 30px 80px -30px rgba(0,0,0,.45)}
+  .pitch{display:block;max-width:360px}
+}
+.pitch .eb{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:650}
+.pitch h2{font-size:2.3rem;line-height:1.05;letter-spacing:-.03em;margin:8px 0 14px;text-wrap:balance}
+.pitch h2 span{color:var(--copper)}
+.pitch p{color:var(--muted);margin:0 0 22px;font-size:1rem}
+.pitch ol{margin:0;padding:0;list-style:none;display:grid;gap:12px;counter-reset:s}
+.pitch li{counter-increment:s;display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;font-size:.95rem}
+.pitch li::before{content:counter(s);font:700 .85rem var(--num);background:var(--brand);color:var(--brand-ink);border-radius:50%;width:26px;height:26px;display:grid;place-items:center}
+.pitch code{font:600 .85rem var(--num);color:var(--brand);word-break:break-all}
+
+/* app bar */
+.appbar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(var(--sat) + 12px) 18px 8px}
+.brand{font-weight:780;font-size:1.02rem;letter-spacing:-.01em;line-height:1.1}
+.brand span{color:var(--copper)}
+.brand small{display:block;font-weight:500;font-size:.72rem;color:var(--muted);letter-spacing:0}
+.abr{display:flex;gap:8px;align-items:center}
+.pill{font:650 .7rem var(--ui);border-radius:99px;padding:3px 9px;background:var(--copper-soft);color:var(--copper)}
+.me{width:38px;height:38px;border-radius:50%;border:0;background:var(--brand);color:var(--brand-ink);font-weight:780;font-size:.95rem}
+
+.scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:0 18px 28px;position:relative}
+.ttl{font-size:2rem;font-weight:800;letter-spacing:-.03em;margin:4px 0 2px;line-height:1.1}
+.sub{color:var(--muted);margin:0 0 16px;font-size:.9rem}
+h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:24px 0 10px;font-weight:700}
+.timer{font:650 .8rem var(--num);color:var(--brand)}
+
+/* tab bar */
+.tabbar{flex:none;display:grid;grid-template-columns:repeat(3,1fr);background:var(--bar);border-top:1px solid var(--line);padding:6px 10px calc(var(--sab) + 8px)}
+.tab{background:none;border:0;display:grid;justify-items:center;gap:2px;padding:6px 0 2px;color:var(--muted);font-size:.7rem;font-weight:680;position:relative}
+.tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-selected="true"]{color:var(--brand)}
+.bdg{position:absolute;top:0;left:calc(50% + 7px);min-width:19px;height:19px;padding:0 5px;border-radius:99px;background:var(--late);color:#fff;font:700 .7rem/19px var(--num);text-align:center}
+.bdg.calm{background:var(--brand);color:var(--brand-ink)}
+
+/* buttons */
+.btn{border:1px solid transparent;border-radius:14px;padding:13px 16px;font-weight:700;font-size:1rem;transition:transform .1s,background .2s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--brand);color:var(--brand-ink)}
+.btn.ghost{background:var(--surface);border-color:var(--line);color:var(--ink)}
+.btn.copper{background:var(--copper);color:#fff}
+.btn.big{padding:16px 18px;font-size:1.05rem}
+.btn.wide{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sent{background:var(--ok);color:var(--brand-ink)}
+
+/* banner */
+.banner{display:flex;align-items:center;gap:10px;background:var(--band);color:var(--band-ink);border-radius:14px;padding:10px 12px;margin:4px 0 14px;font-size:.85rem}
+.banner b{display:block;font-size:.9rem}
+.banner .bx{margin-left:auto;display:flex;gap:6px;align-items:center}
+.banner button{border:0;border-radius:99px;padding:6px 12px;font-weight:700;font-size:.8rem}
+.banner .go{background:var(--band-ink);color:var(--band)}
+.banner .x{background:none;color:var(--band-muted);padding:6px}
+
+/* log */
+.field{margin-bottom:18px}
+.lbl{display:block;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin:0 -18px 8px;padding-inline:18px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:9px 14px;font-weight:600;font-size:.9rem;white-space:nowrap}
+.chip.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+input,textarea{width:100%;font:16px var(--ui);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+textarea{resize:none}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tchip{display:flex;align-items:center;gap:8px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 12px;font-weight:600;font-size:.88rem;line-height:1.2;min-height:52px}
+.tchip svg{flex:none;width:20px;height:20px;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ic-e{stroke:var(--amber)} .ic-p{stroke:var(--brand)}
+.tchip.on{border-color:var(--brand);background:var(--brand-soft);box-shadow:inset 0 0 0 1px var(--brand)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stepper{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.stepper button{border:0;background:none;height:48px;font-size:1.4rem;font-weight:500;color:var(--brand)}
+.stepper output{text-align:center;font:750 1.15rem var(--num)}
+.photo{display:flex;align-items:center;gap:12px;border:1.5px dashed var(--line);border-radius:14px;padding:14px;color:var(--muted);font-weight:600;cursor:pointer;background:var(--surface)}
+.photo svg{width:28px;height:28px;fill:none;stroke:var(--copper);stroke-width:1.8;stroke-linejoin:round}
+.prev{display:flex;align-items:center;gap:12px;margin-top:10px}
+.prev img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.prev button{border:0;background:none;color:var(--late);font-weight:650;font-size:.85rem}
+.sendbar{position:sticky;bottom:-28px;margin:10px -18px -28px;padding:12px 18px 18px;background:linear-gradient(to bottom,transparent,var(--bg) 22%)}
+.hint{font-size:.78rem;color:var(--muted);text-align:center;margin-top:6px}
+
+/* price */
+.tstrip{display:flex;gap:4px;margin:2px 0 8px}
+.tstrip i{flex:1;height:6px;border-radius:3px;background:var(--brand);opacity:.35}
+.tstrip i.late{background:var(--late)}
+.tstrip i.cur{opacity:1}
+.tcount{font-size:.8rem;color:var(--muted);margin-bottom:12px;display:flex;justify-content:space-between}
+.job{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:10px;transition:transform .28s ease,opacity .28s}
+.job.late{box-shadow:inset 4px 0 0 var(--late)}
+.job.out{transform:translateY(-24px) scale(.97);opacity:0}
+.jt{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.cust{font-weight:750;font-size:1.08rem;line-height:1.2}
+.type{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:.85rem;margin-top:2px}
+.type svg{width:15px;height:15px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.days{font:700 .76rem var(--num);white-space:nowrap;border-radius:99px;padding:3px 9px;background:var(--brand-soft);color:var(--brand)}
+.days.late{background:var(--late-soft);color:var(--late)}
+.tray{display:flex;justify-content:space-between;align-items:baseline;background:var(--bg);border-radius:10px;padding:7px 11px;font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+.clock{font:750 1rem var(--num);letter-spacing:0;text-transform:none;color:var(--ink);font-variant-numeric:tabular-nums}
+.clock.late{color:var(--late)}
+.facts{display:flex;flex-wrap:wrap;gap:3px 16px;font-size:.83rem;color:var(--muted)}
+.facts b{color:var(--ink);font:650 .83rem var(--num)}
+.jrow{display:flex;gap:12px;align-items:flex-start}
+.note{flex:1;font-size:.86rem;border-left:2px solid var(--line);padding-left:10px;min-width:0}
+.thumb{flex:none;border:0;padding:0;background:none;border-radius:10px;overflow:hidden;width:64px;height:64px}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.dialwrap{position:relative;max-width:300px;margin:12px auto 0}
+.dial{width:100%;height:auto;display:block;touch-action:none;cursor:grab}
+.dial:active{cursor:grabbing}
+.dial .trk{stroke:var(--line)} .dial .arc{stroke:var(--brand)}
+.dial .tk{stroke:var(--muted);stroke-opacity:.35} .dial .tk.mj{stroke-opacity:.7}
+.dial .past{fill:var(--copper);fill-opacity:.45}
+.dial .sg{stroke:var(--copper)}
+.dial .knob{fill:var(--surface);stroke:var(--brand)}
+.dial .lab{fill:var(--muted);font:600 11px var(--num)}
+.dcenter{position:absolute;left:0;right:0;top:36%;text-align:center;pointer-events:none}
+.dv{font:800 2.2rem/1 var(--num);letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.dd{font-size:.78rem;color:var(--muted);margin-top:6px;font-weight:600}
+.dd.up{color:var(--copper)} .dd.down{color:var(--brand)}
+.dlegend{display:flex;justify-content:center;gap:14px;font-size:.72rem;color:var(--muted);margin-top:-6px}
+.dlegend i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--copper);opacity:.5;margin-right:5px;vertical-align:middle}
+.dlegend i.s{opacity:1;border-radius:1px;width:3px;height:10px}
+.dctrl{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;margin:12px 0 6px}
+.dctrl button{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 8px;font:700 .88rem var(--num)}
+.dctrl #dReset{font-family:var(--ui);font-weight:650;color:var(--copper);padding-inline:14px}
+.basis{font-size:.76rem;color:var(--muted);text-align:center;margin:6px 0 14px}
+.pact{display:grid;grid-template-columns:auto 1fr;gap:10px}
+.done{text-align:center;padding:48px 10px}
+.done .big{font-size:2.2rem;font-weight:800;color:var(--ok);letter-spacing:-.03em}
+.done p{color:var(--muted);max-width:30ch;margin:8px auto 0}
+
+/* cash */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.hk{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.hv{font:800 2.5rem/1.1 var(--num);letter-spacing:-.04em;margin:6px 0;font-variant-numeric:tabular-nums}
+.hs{font-size:.86rem;color:var(--muted)} .hs .l{color:var(--late);font-weight:700}
+.aged{display:flex;gap:2px;height:12px;border-radius:99px;overflow:hidden;background:var(--line);margin-top:14px}
+.aged span{min-width:4px}
+.b1{background:var(--brand)}.b2{background:var(--amber)}.b3{background:var(--copper)}.b4{background:var(--late)}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:12px}
+.legend div{display:grid;grid-template-columns:10px 1fr auto;gap:6px;align-items:center;font-size:.78rem;color:var(--muted)}
+.legend i{width:10px;height:10px;border-radius:3px}
+.legend b{color:var(--ink);font:650 .82rem var(--num)}
+.nudge{margin-top:12px}
+.rows{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.rows li{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:11px 14px;border-bottom:1px solid var(--line);align-items:center}
+.rows li:last-child{border-bottom:0}
+.rows .c{font-weight:650;font-size:.92rem;min-width:0}
+.rows small{grid-column:1;color:var(--muted);font-size:.78rem}
+.rows .v{grid-row:1/3;grid-column:2;text-align:right;font:700 .92rem var(--num)}
+.rows .v small{display:block;font-weight:600}
+.rows li.late{box-shadow:inset 3px 0 0 var(--late)}
+.rows li.late .v small{color:var(--late)}
+.rows .empty{display:block;color:var(--muted);font-size:.86rem}
+.foot{font-size:.78rem;color:var(--muted);margin-top:16px}
+
+/* sheets, onboarding, toast */
+.sheetwrap{position:absolute;inset:0;z-index:30;background:var(--scrim);display:flex;align-items:flex-end;animation:fade .2s}
+.sheet{width:100%;max-height:88%;overflow-y:auto;background:var(--bg);border-radius:22px 22px 0 0;padding:10px 18px calc(var(--sab) + 22px);animation:up .28s cubic-bezier(.2,.8,.2,1)}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+.sheet h4{font-size:1.25rem;margin:0 0 6px;letter-spacing:-.02em}
+.sheet p{color:var(--muted);font-size:.9rem;margin:0 0 14px}
+.sheet .stack{display:grid;gap:10px}
+.sheet img.full{width:100%;border-radius:12px;display:block}
+.steps{margin:0 0 14px;padding-left:20px;font-size:.92rem;display:grid;gap:6px}
+.roles{display:grid;gap:10px}
+.role{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.role .av{width:44px;height:44px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-weight:800;font-size:1.1rem}
+.role b{display:block} .role small{color:var(--muted)}
+.role.on{border-color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand)}
+.onboard{position:absolute;inset:0;z-index:40;background:var(--band);color:var(--band-ink);display:flex;flex-direction:column;justify-content:flex-end;padding:calc(var(--sat) + 24px) 22px calc(var(--sab) + 28px)}
+.onboard .mark{width:64px;height:64px;border-radius:16px;background:var(--brand-soft);display:grid;place-items:center;margin-bottom:auto;margin-top:24px}
+.onboard .mark svg{width:40px;height:40px}
+.onboard h2{font-size:2.3rem;line-height:1.05;letter-spacing:-.03em;margin:0 0 10px}
+.onboard h2 span{color:var(--copper)}
+.onboard p{color:var(--band-muted);margin:0 0 22px}
+.onboard .role{background:var(--band-chip);border-color:transparent;color:var(--band-ink)}
+.onboard .role small{color:var(--band-muted)}
+.onboard .role .av{background:var(--band-ink);color:var(--band)}
+.toast{position:absolute;left:14px;right:14px;bottom:calc(var(--sab) + 84px);z-index:35;background:var(--ink);color:var(--bg);border-radius:12px;padding:11px 14px;display:flex;gap:12px;align-items:center;font-size:.88rem;box-shadow:0 10px 30px -10px rgba(0,0,0,.4)}
+.toast span{flex:1}
+.toast button{border:0;background:none;color:var(--copper);font-weight:800}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:60}
+@keyframes up{from{transform:translateY(100%)}}
+@keyframes fade{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){.sheetwrap,.sheet{animation:none}.job{transition:none}}
+:root{--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)}
+</style>
+</head>
+<body>
+<div class="stage">
+  <aside class="pitch">
+    <div class="eb">Byrne Building Services · Naas</div>
+    <h2>Gerry's Brain, <span>on the phone</span></h2>
+    <p>The pricing queue as a phone app. It sits on the home screen, works with no signal, and Gerry prices a job by turning one dial with his thumb.</p>
+    <ol>
+      <li><span>Open <code>kellyjason82.github.io/gerrys-brain/app</code> on your phone</span></li>
+      <li><span>Add it to your home screen from the browser menu</span></li>
+      <li><span>Turn on airplane mode. It keeps working.</span></li>
+    </ol>
+  </aside>
+
+  <div class="phone" id="phone">
+    <div class="appbar">
+      <div class="brand">Gerry's <span>Brain</span><small>Byrne Building Services</small></div>
+      <div class="abr"><span class="pill" id="offline" hidden>Offline · still working</span><button class="me" id="meBtn" type="button" aria-label="Settings and who is using this phone">G</button></div>
+    </div>
+
+    <main class="scroll" id="scroll">
+      <section id="v-log" hidden>
+        <h1 class="ttl">Log a job</h1>
+        <p class="sub">Tap, don't type. Made for a phone in the van. <span class="timer" id="timer"></span></p>
+        <div class="field"><span class="lbl">Customer</span><div class="chips" id="custChips"></div>
+          <input id="f-cust" placeholder="Or type a new customer" autocomplete="off" aria-label="Customer name"></div>
+        <div class="field"><span class="lbl">Job</span><div class="types" id="typeGrid"></div></div>
+        <div class="field"><span class="lbl">Finished</span><div class="chips" id="dateChips"></div><input id="f-date" type="date" aria-label="Date finished" hidden></div>
+        <div class="field two">
+          <div><span class="lbl">Hours on site</span><div class="stepper"><button type="button" id="hMinus" aria-label="Fewer hours">−</button><output id="hOut">2</output><button type="button" id="hPlus" aria-label="More hours">+</button></div></div>
+          <div><label class="lbl" for="f-mat">Materials €</label><input id="f-mat" type="number" inputmode="decimal" min="0" placeholder="0"></div>
+        </div>
+        <div class="field"><span class="lbl">Photo</span>
+          <label class="photo" for="f-photo" id="photoBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Snap the job sheet or receipt</span></label>
+          <input id="f-photo" class="vh" type="file" accept="image/*" capture="environment">
+          <div class="prev" id="photoPrev" hidden><img id="photoImg" alt="Photo attached to this job"><button type="button" id="photoDel">Remove</button></div></div>
+        <div class="field"><label class="lbl" for="f-note">Note for Gerry</label><textarea id="f-note" rows="2" placeholder="Extra visit, access problem, anything that changes the price"></textarea></div>
+        <div class="sendbar"><button class="btn primary big wide" id="sendBtn" type="button" disabled>Send to Gerry</button><div class="hint" id="sendHint">Pick a customer and a job</div></div>
+      </section>
+
+      <section id="v-price" hidden>
+        <h1 class="ttl">Price</h1>
+        <p class="sub">Oldest job first. Turn the dial or approve the suggestion.</p>
+        <div id="bannerSlot"></div>
+        <div id="priceBody"></div>
+      </section>
+
+      <section id="v-cash" hidden>
+        <h1 class="ttl">Cash</h1>
+        <p class="sub">What is waiting on Gerry, and for how long.</p>
+        <div id="cashBody"></div>
+      </section>
+    </main>
+
+    <nav class="tabbar" role="tablist">
+      <button class="tab" role="tab" id="t-log" data-tab="log" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="18" rx="2.5"/><path d="M9 2.5h6v3H9zM12 10v7M8.5 13.5h7"/></svg>Log</button>
+      <button class="tab" role="tab" id="t-price" data-tab="price" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 18a8.5 8.5 0 1 1 15 0"/><path d="M12 14.5l4-5"/><circle cx="12" cy="14.5" r="1.4"/></svg>Price<span class="bdg" id="bdg" hidden></span></button>
+      <button class="tab" role="tab" id="t-cash" data-tab="cash" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="13" rx="2.5"/><circle cx="12" cy="12.5" r="3"/><path d="M6 10v5M18 10v5"/></svg>Cash</button>
+    </nav>
+
+    <div class="onboard" id="onboard" hidden>
+      <div class="mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M7 30a15 15 0 1 1 26 0" fill="none" stroke="#1f5b57" stroke-width="4" stroke-linecap="round"/><path d="M20 24l8-10" stroke="#b0662f" stroke-width="4" stroke-linecap="round"/><circle cx="20" cy="24" r="3.5" fill="#b0662f"/></svg></div>
+      <h2>Gerry's <span>Brain</span></h2>
+      <p>Finished jobs, priced fast. Pricing stays with Gerry. Who is this phone for?</p>
+      <div class="roles" id="onRoles"></div>
+    </div>
+
+    <div class="toast" id="toast" hidden><span id="toastMsg"></span><button id="toastUndo" type="button">Undo</button></div>
+    <div id="sheetHost"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+const KEY='gerrys-brain-app-v1', LATE=3, MARKUP=1.15;
+const TYPES=[['Consumer unit upgrade','e','Consumer unit'],['EV charger install','e','EV charger'],['Emergency lighting test & repair','e','Emergency lighting'],['Commercial lighting retrofit','e','Lighting retrofit'],['Fault finding','e','Fault finding'],['Boiler service','p','Boiler service'],['Leak repair','p','Leak repair'],['Washroom refit','p','Washroom refit']];
+const KIND=Object.fromEntries(TYPES.map(t=>[t[0],t[1]]));
+const ICON={e:'<path d="M13 2L4.5 13.5H11l-1 8.5L19 10h-6.5z"/>',p:'<path d="M12 3s6 7 6 11.2a6 6 0 0 1-12 0C6 10 12 3 12 3z"/>'};
+const ico=(type,cls='')=>`<svg viewBox="0 0 24 24" class="${cls} ic-${KIND[type]||'e'}" aria-hidden="true">${ICON[KIND[type]||'e']}</svg>`;
+const ROLES={office:{n:'Office',l:'O',d:'Logs finished jobs',tab:'log'},gerry:{n:'Gerry',l:'G',d:'Prices the queue',tab:'price'},sandra:{n:'Sandra',l:'S',d:'Watches the cash',tab:'cash'}};
+const $=id=>document.getElementById(id);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const eur=n=>new Intl.NumberFormat('en-IE',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
+const eurK=n=>n>=10000?'€'+(n/1000).toFixed(1).replace(/\.0$/,'')+'k':eur(n);
+const today=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
+const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
+const ago=n=>{const d=today();d.setDate(d.getDate()-n);return iso(d)};
+const daysSince=s=>Math.max(0,Math.round((today()-new Date(s+'T00:00:00'))/864e5));
+const short=s=>new Date(s+'T00:00:00').toLocaleDateString('en-IE',{day:'numeric',month:'short'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const pad=n=>String(n).padStart(2,'0');
+const buzz=(ms=10)=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
+
+/* sample job sheet photo, drawn so the demo has something to open */
+function sheetPhoto(lines){
+  try{
+    const c=document.createElement('canvas');c.width=520;c.height=380;const x=c.getContext('2d');
+    x.fillStyle='#e9e4d8';x.fillRect(0,0,520,380);
+    x.save();x.translate(260,190);x.rotate(-.035);x.fillStyle='#fbfaf5';x.fillRect(-230,-170,460,340);
+    x.fillStyle='#1f5b57';x.fillRect(-230,-170,460,40);x.fillStyle='#fff';x.font='bold 15px Arial';x.fillText('BYRNE BUILDING SERVICES · JOB SHEET',-214,-144);
+    x.strokeStyle='#cfd9e4';x.lineWidth=1;for(let y=-100;y<160;y+=30){x.beginPath();x.moveTo(-214,y);x.lineTo(214,y);x.stroke()}
+    x.fillStyle='#22324a';x.font='italic 21px "Bradley Hand","Segoe Print","Comic Sans MS",cursive';
+    lines.forEach((t,i)=>x.fillText(t,-210,-106+i*30));
+    x.restore();
+    return c.toDataURL('image/jpeg',.7);
+  }catch(e){return null}
+}
+function sample(){
+  const h=(type,hours,materials,price,customer)=>({type,hours,materials,price,customer});
+  const jobs=[
+    {customer:'Naas Hockey Club',type:'Emergency lighting test & repair',d:25,hours:3.5,materials:110,note:'Two bulkheads in rear stairwell replaced. Cert to follow.',ph:['Naas Hockey Club','2 x bulkhead, rear stairs','Emerg. test all fittings - ok','3.5 hrs   mats €110','Cert to follow   - Dec']},
+    {customer:'Oakfield Dental Practice',type:'Washroom refit',d:18,hours:28,materials:2650,note:'Staff and patient washrooms. Customer supplied the vanity units.'},
+    {customer:'Millbrook Business Park, Unit 4',type:'Commercial lighting retrofit',d:13,hours:16,materials:2080,note:'LED panels across warehouse and office. Hired scissor lift for 2 days.',ph:['Millbrook BP Unit 4','48 x LED panel 600x600','Warehouse + office','Scissor lift 2 days','16 hrs  - Ger + Tommy']},
+    {customer:'Riverside Café',type:'Leak repair',d:9,hours:2.5,materials:55,note:'Under-sink trap and isolation valve.'},
+    {customer:'Abbey Bridge Hotel',type:'Fault finding',d:6,hours:3,materials:30,note:'Tripping RCD traced to kitchen extractor.'},
+    {customer:'Johnstown Crèche',type:'Boiler service',d:4,hours:2,materials:45,note:''},
+    {customer:'Kilcullen Road Motors',type:'EV charger install',d:2,hours:4.5,materials:705,note:'Second charger on the forecourt, 22 kW.'},
+    {customer:'Corban Hall',type:'Consumer unit upgrade',d:1,hours:6,materials:440,note:'Board was full. Added RCBOs for the new kitchen circuits.',ph:['Corban Hall','New 18-way board','RCBOs x 6, kitchen','6 hrs   mats €440','Tested + certed']}
+  ].map((j,i)=>({id:uid(),customer:j.customer,type:j.type,done:ago(j.d),hours:j.hours,materials:j.materials,note:j.note,photo:j.ph?sheetPhoto(j.ph):null,status:'waiting',loggedAt:new Date(ago(j.d)+'T17:30:00').getTime()+i}));
+  return {jobs,history:[
+    h('Consumer unit upgrade',6,420,1150,'Corban Hall'),h('Consumer unit upgrade',7,460,1280,'Millbrook Business Park, Unit 2'),h('Consumer unit upgrade',5.5,390,1060,'Fairgreen Pharmacy'),
+    h('EV charger install',4,690,1240,'Kilcullen Road Motors'),h('EV charger install',5,720,1390,'Osberstown Offices'),
+    h('Emergency lighting test & repair',3,85,340,'Naas Hockey Club'),h('Emergency lighting test & repair',4,140,455,'Abbey Bridge Hotel'),h('Emergency lighting test & repair',2.5,60,285,'Poplar Square Dental'),
+    h('Commercial lighting retrofit',14,1850,3950,'Millbrook Business Park, Unit 7'),h('Commercial lighting retrofit',18,2300,4980,'Kerrigan Logistics'),
+    h('Fault finding',2.5,20,220,'Riverside Café'),h('Fault finding',4,65,375,'Poplar Square Dental'),
+    h('Boiler service',2,35,165,"St Brigid's Parish Hall"),h('Boiler service',2.5,60,210,'Johnstown Crèche'),
+    h('Leak repair',3,75,310,'Harbour View Apartments'),h('Leak repair',2,40,205,'Main St Barbers'),
+    h('Washroom refit',32,2900,6950,'Osberstown Offices')]};
+}
+
+let state;try{state=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!state||!state.jobs||!state.history)state=Object.assign(sample(),{role:null,bannerOff:false});
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));return true}catch(e){return false}}
+const find=id=>state.jobs.find(j=>j.id===id);
+const waiting=()=>state.jobs.filter(j=>j.status==='waiting').sort((a,b)=>a.done.localeCompare(b.done)||a.loggedAt-b.loggedAt);
+const ui={tab:'price',skip:new Set(),dial:null,deferred:null,shownCash:0};
+const queue=()=>{const w=waiting();return [...w.filter(j=>!ui.skip.has(j.id)),...w.filter(j=>ui.skip.has(j.id))]};
+
+function startOf(j){const s=new Date(j.done+'T17:00:00').getTime();return (j.loggedAt&&j.loggedAt>s)?j.loggedAt:Math.min(s,Date.now())}
+function clock(ms){ms=Math.max(0,ms);const s=Math.floor(ms/1000);return `${Math.floor(s/86400)}d ${pad(Math.floor(s%86400/3600))}:${pad(Math.floor(s%3600/60))}:${pad(s%60)}`}
+function median(a){const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2}
+function suggest(job){
+  let pool=state.history.filter(h=>h.type===job.type);const same=pool.length>0;
+  if(!same)pool=state.history;
+  const rates=pool.filter(h=>h.hours>0).map(h=>(h.price-h.materials*MARKUP)/h.hours);
+  const rate=rates.length?median(rates):60;
+  const price=Math.round((job.hours*rate+job.materials*MARKUP)/5)*5;
+  const basis=same?`Based on ${pool.length} past ${job.type.toLowerCase()} job${pool.length>1?'s':''}: about ${eur(rate)}/hr plus materials +15%.`:`No past ${job.type.toLowerCase()} jobs yet, so this uses your overall rate of about ${eur(rate)}/hr plus materials +15%.`;
+  return {price,basis,same,prices:pool.map(h=>h.price)};
+}
+
+/* ---------- navigation ---------- */
+function setTab(t){
+  ui.tab=t;
+  ['log','price','cash'].forEach(k=>{$('v-'+k).hidden=k!==t;$('t-'+k).setAttribute('aria-selected',k===t)});
+  $('scroll').scrollTop=0;
+  if(t==='price')renderPrice();
+  if(t==='cash')renderCash();
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+
+function renderAll(){
+  const w=waiting(),late=w.filter(j=>daysSince(j.done)>LATE).length,b=$('bdg');
+  b.hidden=!w.length;b.textContent=w.length;b.className='bdg'+(late?'':' calm');
+  try{if(navigator.setAppBadge){w.length?navigator.setAppBadge(w.length).catch(()=>{}):navigator.clearAppBadge().catch(()=>{})}}catch(e){}
+  $('meBtn').textContent=state.role?ROLES[state.role].l:'?';
+  renderLogLists();
+  if(ui.tab==='price')renderPrice();
+  if(ui.tab==='cash')renderCash();
+  renderBanner();
+}
+
+/* ---------- Log ---------- */
+const draft={customer:'',type:'',date:iso(today()),dateMode:'today',hours:2,photo:null};
+let t0=null,tI=null;
+function startTimer(){if(t0)return;t0=Date.now();clearInterval(tI);tI=setInterval(()=>{$('timer').textContent=Math.round((Date.now()-t0)/1000)+'s'},250)}
+$('v-log').addEventListener('pointerdown',startTimer,{capture:true});
+$('v-log').addEventListener('input',startTimer,{capture:true});
+function renderLogLists(){
+  const seen=new Set(),names=[];
+  [...state.jobs].sort((a,b)=>b.loggedAt-a.loggedAt).map(j=>j.customer).concat(state.history.map(h=>h.customer)).forEach(n=>{if(!seen.has(n)&&names.length<8){seen.add(n);names.push(n)}});
+  $('custChips').innerHTML=names.map(n=>`<button type="button" class="chip${draft.customer===n?' on':''}" data-c="${esc(n)}">${esc(n)}</button>`).join('');
+  $('typeGrid').innerHTML=TYPES.map(([t,k,s])=>`<button type="button" class="tchip${draft.type===t?' on':''}" data-t="${esc(t)}">${ico(t)}${esc(s)}</button>`).join('');
+  $('dateChips').innerHTML=[['today','Today'],['yday','Yesterday'],['other','Earlier']].map(([k,l])=>`<button type="button" class="chip${draft.dateMode===k?' on':''}" data-d="${k}">${k==='other'&&draft.dateMode==='other'?'Earlier: '+short(draft.date):l}</button>`).join('');
+  $('f-date').hidden=draft.dateMode!=='other';
+  checkSend();
+}
+$('custChips').addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;draft.customer=b.dataset.c;$('f-cust').value=draft.customer;renderLogLists()});
+$('f-cust').addEventListener('input',e=>{draft.customer=e.target.value.trim();document.querySelectorAll('#custChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.c===draft.customer));checkSend()});
+$('typeGrid').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;draft.type=b.dataset.t;buzz(6);renderLogLists()});
+$('dateChips').addEventListener('click',e=>{const b=e.target.closest('[data-d]');if(!b)return;draft.dateMode=b.dataset.d;
+  if(b.dataset.d==='today')draft.date=iso(today());if(b.dataset.d==='yday')draft.date=ago(1);
+  if(b.dataset.d==='other'){if(!$('f-date').value)$('f-date').value=ago(2);draft.date=$('f-date').value}
+  renderLogLists()});
+$('f-date').max=iso(today());
+$('f-date').addEventListener('change',e=>{if(e.target.value){draft.date=e.target.value;renderLogLists()}});
+const setHours=v=>{draft.hours=Math.max(.5,Math.min(80,v));$('hOut').textContent=draft.hours;buzz(4)};
+$('hMinus').addEventListener('click',()=>setHours(draft.hours-.5));
+$('hPlus').addEventListener('click',()=>setHours(draft.hours+.5));
+$('f-photo').addEventListener('change',async e=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;
+  try{draft.photo=await compress(f);$('photoImg').src=draft.photo;$('photoPrev').hidden=false}catch(err){toast('That photo could not be read. Try another one.')}
+  e.target.value='';
+});
+$('photoDel').addEventListener('click',()=>{draft.photo=null;$('photoPrev').hidden=true});
+function compress(file){return new Promise((res,rej)=>{const img=new Image(),url=URL.createObjectURL(file);
+  img.onload=()=>{const m=900,s=Math.min(1,m/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',.6))};
+  img.onerror=()=>{URL.revokeObjectURL(url);rej()};img.src=url})}
+function checkSend(){
+  const ok=draft.customer&&draft.type&&draft.hours>0;
+  $('sendBtn').disabled=!ok;
+  $('sendHint').textContent=ok?`Gerry will see a suggested price straight away`:!draft.customer&&!draft.type?'Pick a customer and a job':!draft.customer?'Pick or type a customer':'Pick the job type';
+}
+$('sendBtn').addEventListener('click',()=>{
+  const job={id:uid(),customer:draft.customer,type:draft.type,done:draft.date,hours:draft.hours,materials:parseFloat($('f-mat').value)||0,note:$('f-note').value.trim(),photo:draft.photo,status:'waiting',loggedAt:Date.now()};
+  state.jobs.push(job);
+  let note='';
+  if(!save()){job.photo=null;save();note=' Photo too large to keep on this phone.'}
+  const secs=t0?Math.max(1,Math.round((Date.now()-t0)/1000)):null;clearInterval(tI);t0=null;$('timer').textContent='';
+  Object.assign(draft,{customer:'',type:'',date:iso(today()),dateMode:'today',hours:2,photo:null});
+  $('f-cust').value='';$('f-mat').value='';$('f-note').value='';$('hOut').textContent='2';$('photoPrev').hidden=true;
+  const b=$('sendBtn');b.textContent='Sent to Gerry ✓';b.classList.add('sent');setTimeout(()=>{b.textContent='Send to Gerry';b.classList.remove('sent')},1600);
+  renderAll();buzz(15);$('scroll').scrollTop=0;
+  toast(`Logged${secs?` in ${secs}s`:''}. Suggested ${eur(suggest(job).price)}.${note}`,()=>{state.jobs=state.jobs.filter(j=>j!==job);save();renderAll()});
+});
+
+/* ---------- Price: the dial ---------- */
+const CX=150,CY=150,R=112,A0=135,SW=270;
+const pt=(a,r)=>[CX+r*Math.cos(a*Math.PI/180),CY+r*Math.sin(a*Math.PI/180)];
+function arcD(a1){if(a1-A0<.5)return '';const[x0,y0]=pt(A0,R),[x1,y1]=pt(a1,R);return `M${x0.toFixed(1)} ${y0.toFixed(1)}A${R} ${R} 0 ${a1-A0>180?1:0} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`}
+function renderPrice(){
+  const q=queue(),box=$('priceBody');
+  if(!q.length){
+    const ready=state.jobs.filter(j=>j.status==='priced');ui.dial=null;
+    box.innerHTML=`<div class="done"><div class="big">Tray empty</div><p>Every finished job has a price. ${ready.length} job${ready.length===1?'':'s'} worth ${eur(ready.reduce((a,j)=>a+j.price,0))} ready for Sandra to invoice.</p></div>`;
+    return;
+  }
+  const j=q[0],s=suggest(j),d=daysSince(j.done),late=d>LATE,st=startOf(j);
+  const past=s.same?s.prices.filter(p=>p>=s.price*.45&&p<=s.price*1.9):[];
+  let lo=Math.min(s.price*.7,...past),hi=Math.max(s.price*1.3,...past);
+  const step=hi>3000?25:hi>1000?10:5;
+  lo=Math.max(0,Math.floor(lo/step)*step);hi=Math.ceil(hi/step)*step;
+  ui.dial={id:j.id,v:lo,lo,hi,step,sugg:s.price};
+  const A=v=>A0+(v-lo)/(hi-lo)*SW;
+  let ticks='';for(let i=0;i<=36;i++){const a=A0+i*SW/36,mj=i%6===0,[x0,y0]=pt(a,mj?124:127),[x1,y1]=pt(a,134);ticks+=`<line class="tk${mj?' mj':''}" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}" stroke-width="${mj?2:1.4}"/>`}
+  const dots=past.map(p=>{const[x,y]=pt(A(p),143);return `<circle class="past" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5"><title>You charged ${eur(p)}</title></circle>`}).join('');
+  const[sx0,sy0]=pt(A(s.price),90),[sx1,sy1]=pt(A(s.price),101);
+  const[lx,ly]=pt(A0,R),[hx,hy]=pt(A0+SW,R);
+  box.innerHTML=`
+    <div class="tstrip" aria-hidden="true">${q.map((x,i)=>`<i class="${daysSince(x.done)>LATE?'late':''}${i===0?' cur':''}"></i>`).join('')}</div>
+    <div class="tcount"><span>Job 1 of ${q.length} in the tray</span><span>${eurK(q.reduce((a,x)=>a+suggest(x).price,0))} waiting</span></div>
+    <article class="job${late?' late':''}" id="jobCard">
+      <div class="jt"><div><div class="cust">${esc(j.customer)}</div><div class="type">${ico(j.type)}${esc(j.type)}</div></div><span class="days${late?' late':''}">${d} day${d===1?'':'s'}</span></div>
+      <div class="tray"><span>In the tray</span><span class="clock${late?' late':''}" data-since="${st}">${clock(Date.now()-st)}</span></div>
+      <div class="facts"><span>Done <b>${short(j.done)}</b></span><span>Hours <b>${j.hours}</b></span><span>Materials <b>${eur(j.materials)}</b></span></div>
+      ${j.note||j.photo?`<div class="jrow">${j.note?`<div class="note">${esc(j.note)}</div>`:'<div class="note" style="border:0"></div>'}${j.photo?`<button class="thumb" type="button" id="thumbBtn" aria-label="Open the photo of the job sheet"><img src="${j.photo}" alt=""></button>`:''}</div>`:''}
+    </article>
+    <div class="dialwrap">
+      <svg class="dial" id="dial" viewBox="0 0 300 268" role="slider" tabindex="0" aria-label="Price for ${esc(j.customer)}" aria-valuemin="${lo}" aria-valuemax="${hi}">
+        <path class="trk" d="${arcD(A0+SW)}" fill="none" stroke-width="16" stroke-linecap="round"/>
+        <path class="arc" id="dArc" d="" fill="none" stroke-width="16" stroke-linecap="round"/>
+        ${ticks}${dots}
+        <line class="sg" x1="${sx0.toFixed(1)}" y1="${sy0.toFixed(1)}" x2="${sx1.toFixed(1)}" y2="${sy1.toFixed(1)}" stroke-width="4" stroke-linecap="round"/>
+        <circle class="knob" id="dKnob" cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="14" stroke-width="5"/>
+        <text class="lab" x="${lx.toFixed(1)}" y="${(ly+34).toFixed(1)}" text-anchor="middle">${eur(lo)}</text>
+        <text class="lab" x="${hx.toFixed(1)}" y="${(hy+34).toFixed(1)}" text-anchor="middle">${eur(hi)}</text>
+      </svg>
+      <div class="dcenter"><div class="dv" id="dVal">${eur(lo)}</div><div class="dd" id="dDelta">Working it out…</div></div>
+    </div>
+    <div class="dlegend">${past.length?`<span><i></i>What you charged before</span>`:''}<span><i class="s"></i>Suggestion</span></div>
+    <div class="dctrl"><button type="button" id="dMinus">− ${eur(step)}</button><button type="button" id="dReset">Suggestion</button><button type="button" id="dPlus">+ ${eur(step)}</button></div>
+    <div class="basis">${esc(s.basis)}</div>
+    <div class="pact"><button class="btn ghost big" type="button" id="skipBtn">Later</button><button class="btn primary big" type="button" id="approveBtn">Approve</button></div>`;
+  bindDial();
+  sweepTo(s.price);
+}
+function setDial(v,haptic){
+  const D=ui.dial;if(!D)return;
+  v=Math.max(D.lo,Math.min(D.hi,Math.round(v/D.step)*D.step));
+  const changed=v!==D.v;D.v=v;
+  const a=A0+(v-D.lo)/(D.hi-D.lo)*SW,[x,y]=pt(a,R);
+  $('dArc').setAttribute('d',arcD(a));$('dKnob').setAttribute('cx',x.toFixed(1));$('dKnob').setAttribute('cy',y.toFixed(1));
+  $('dVal').textContent=eur(v);$('dial').setAttribute('aria-valuenow',v);$('dial').setAttribute('aria-valuetext',eur(v));
+  const dd=$('dDelta'),diff=v-D.sugg;
+  if(!D.ready){dd.textContent='Working it out…';dd.className='dd'}
+  else if(diff===0){dd.textContent='Suggested price';dd.className='dd'}
+  else{dd.textContent=`${diff>0?'+':'−'}${eur(Math.abs(diff))} on suggestion`;dd.className='dd '+(diff>0?'up':'down')}
+  $('approveBtn').textContent=`Approve ${eur(v)}`;
+  if(haptic&&changed)buzz(3);
+}
+let sweepRaf=null;
+function sweepTo(target){
+  const D=ui.dial;cancelAnimationFrame(sweepRaf);
+  if(reduce){D.ready=true;setDial(target);return}
+  const from=D.lo,s=performance.now(),dur=950;
+  const f=t=>{if(ui.dial!==D)return;const k=Math.min(1,(t-s)/dur),e=1-Math.pow(1-k,3);
+    D.ready=k>=1;setDial(from+(target-from)*e);if(k<1)sweepRaf=requestAnimationFrame(f)};
+  sweepRaf=requestAnimationFrame(f);
+}
+function bindDial(){
+  const svg=$('dial');let drag=false;
+  const fromPointer=e=>{const D=ui.dial,r=svg.getBoundingClientRect();
+    const x=(e.clientX-r.left)*300/r.width,y=(e.clientY-r.top)*268/r.height;
+    let t=Math.atan2(y-CY,x-CX)*180/Math.PI;if(t<90)t+=360;t=Math.max(A0,Math.min(A0+SW,t));
+    D.ready=true;cancelAnimationFrame(sweepRaf);setDial(D.lo+(t-A0)/SW*(D.hi-D.lo),true)};
+  svg.addEventListener('pointerdown',e=>{drag=true;svg.setPointerCapture(e.pointerId);fromPointer(e)});
+  svg.addEventListener('pointermove',e=>{if(drag)fromPointer(e)});
+  svg.addEventListener('pointerup',()=>drag=false);svg.addEventListener('pointercancel',()=>drag=false);
+  svg.addEventListener('keydown',e=>{const D=ui.dial,m={ArrowRight:1,ArrowUp:1,ArrowLeft:-1,ArrowDown:-1,PageUp:10,PageDown:-10}[e.key];
+    if(m){e.preventDefault();D.ready=true;setDial(D.v+m*D.step,true)}});
+  const nudge=n=>{const D=ui.dial;D.ready=true;cancelAnimationFrame(sweepRaf);setDial(D.v+n*D.step,true)};
+  $('dMinus').addEventListener('click',()=>nudge(-1));
+  $('dPlus').addEventListener('click',()=>nudge(1));
+  $('dReset').addEventListener('click',()=>{ui.dial.ready=true;setDial(ui.dial.sugg,true)});
+  $('approveBtn').addEventListener('click',approve);
+  $('skipBtn').addEventListener('click',()=>{ui.skip.add(ui.dial.id);renderPrice();toast('Moved to the back of the tray')});
+  const th=$('thumbBtn');if(th)th.addEventListener('click',()=>{const j=find(ui.dial.id);sheet(`<h4>${esc(j.customer)}</h4><p>${esc(j.type)} · done ${short(j.done)}</p><img class="full" src="${j.photo}" alt="Photo of the job sheet"><div style="height:12px"></div><button class="btn ghost wide" data-close type="button">Close</button>`)});
+}
+function approve(){
+  const D=ui.dial;if(!D)return;const job=find(D.id),v=D.v,edited=v!==D.sugg;
+  const card=$('jobCard');if(card&&!reduce)card.classList.add('out');
+  setTimeout(()=>price(job,v,edited),reduce?0:240);
+}
+function price(job,p,edited){
+  job.status='priced';job.price=p;job.pricedAt=Date.now();job.edited=edited;ui.skip.delete(job.id);
+  const h={type:job.type,hours:job.hours,materials:job.materials,price:p,customer:job.customer};
+  state.history.push(h);save();buzz(18);renderAll();
+  if(!waiting().length)confetti();
+  toast(`${job.customer}: ${eur(p)}${edited?' (your price)':''}`,()=>{job.status='waiting';delete job.price;delete job.pricedAt;delete job.edited;state.history=state.history.filter(x=>x!==h);save();renderAll()});
+}
+
+/* ---------- Cash ---------- */
+function renderCash(){
+  const w=waiting(),vals=w.map(j=>({j,d:daysSince(j.done),v:suggest(j).price}));
+  const total=vals.reduce((a,x)=>a+x.v,0),lateV=vals.filter(x=>x.d>LATE),lateT=lateV.reduce((a,x)=>a+x.v,0);
+  const B=[['0–3 days',0,3,'b1'],['4–7 days',4,7,'b2'],['8–14 days',8,14,'b3'],['15+ days',15,1e9,'b4']].map(([k,lo,hi,c])=>({k,c,v:vals.filter(x=>x.d>=lo&&x.d<=hi).reduce((a,x)=>a+x.v,0)}));
+  const priced=state.jobs.filter(j=>j.status==='priced').sort((a,b)=>b.pricedAt-a.pricedAt);
+  const readyT=priced.reduce((a,j)=>a+j.price,0);
+  const kept=priced.length?Math.round(priced.filter(j=>!j.edited).length/priced.length*100):null;
+  $('cashBody').innerHTML=`
+    <div class="hero"><div class="hk">Waiting on Gerry's price</div><div class="hv" id="heroV">${eur(ui.shownCash)}</div>
+      <div class="hs">${w.length} job${w.length===1?'':'s'}${lateV.length?` · <span class="l">${eur(lateT)} over ${LATE} days</span>`:''}</div>
+      <div class="aged" role="img" aria-label="${B.map(b=>b.k+' '+eur(b.v)).join(', ')}">${B.filter(b=>b.v).map(b=>`<span class="${b.c}" style="flex:${b.v}"></span>`).join('')}</div>
+      <div class="legend">${B.map(b=>`<div><i class="${b.c}"></i><span>${b.k}</span><b>${eurK(b.v)}</b></div>`).join('')}</div>
+    </div>
+    <button class="btn copper big wide nudge" id="nudgeBtn" type="button"${w.length?'':' disabled'}>Nudge Gerry</button>
+    <h3>Waiting, oldest first</h3>
+    <ul class="rows">${vals.length?vals.map(x=>`<li class="${x.d>LATE?'late':''}"><span class="c">${esc(x.j.customer)}</span><small>${esc(x.j.type)}</small><span class="v">${eur(x.v)}<small>${x.d} day${x.d===1?'':'s'}</small></span></li>`).join(''):'<li><span class="empty">Nothing waiting on a price.</span></li>'}</ul>
+    <h3>Priced, ready to invoice · ${eur(readyT)}</h3>
+    <ul class="rows">${priced.length?priced.map(j=>`<li><span class="c">${esc(j.customer)}</span><small>${esc(j.type)}${j.edited?' · Gerry changed it':''}</small><span class="v">${eur(j.price)}<small>${Math.max(0,Math.round((j.pricedAt-new Date(j.done+'T00:00:00'))/864e5))}d to price</small></span></li>`).join(''):'<li><span class="empty">Nothing priced yet. Jobs Gerry approves land here.</span></li>'}</ul>
+    <p class="foot">${kept===null?'Once Gerry starts pricing, this shows how often he keeps the suggested price.':`Gerry kept the suggested price on ${kept}% of the ${priced.length} job${priced.length===1?'':'s'} he priced here.`}</p>`;
+  $('nudgeBtn').addEventListener('click',openNudge);
+  countTo(total);
+}
+let cRaf=null;
+function countTo(to){
+  const from=ui.shownCash;ui.shownCash=to;cancelAnimationFrame(cRaf);const el=()=>$('heroV');
+  if(reduce||from===to){el().textContent=eur(to);return}
+  const s=performance.now(),D=1000;
+  const f=t=>{const k=Math.min(1,(t-s)/D),e=1-Math.pow(1-k,3);const n=el();if(n)n.textContent=eur(from+(to-from)*e);if(k<1)cRaf=requestAnimationFrame(f)};
+  cRaf=requestAnimationFrame(f);
+}
+function nudgeText(){
+  const w=waiting(),total=w.reduce((a,j)=>a+suggest(j).price,0),lateN=w.filter(j=>daysSince(j.done)>LATE).length,old=w.length?daysSince(w[0].done):0;
+  return `Hi Gerry, ${w.length} job${w.length===1?' is':'s are'} waiting on a price, worth about ${eur(total)}${lateN?`. ${lateN} of them ${lateN===1?'has':'have'} been in the tray over ${LATE} days, the oldest ${old} days`:''}. The suggested prices are ready in Gerry's Brain, so it should only take a few minutes. Thanks, Sandra`;
+}
+function openNudge(){
+  const msg=nudgeText(),wa=t=>'https://wa.me/?text='+encodeURIComponent(t);
+  sheet(`<h4>Nudge Gerry</h4><p>Edit if you like, then send it the way he reads messages.</p>
+    <textarea id="nudgeTxt" rows="6" aria-label="Message to Gerry">${esc(msg)}</textarea><div style="height:12px"></div>
+    <div class="stack">
+      <a class="btn primary big wide" id="waLink" href="${wa(msg)}" target="_blank" rel="noopener">Open in WhatsApp</a>
+      ${navigator.share?'<button class="btn ghost wide" id="shareBtn" type="button">Share another way</button>':''}
+      <button class="btn ghost wide" id="copyBtn" type="button">Copy message</button>
+      <button class="btn ghost wide" data-close type="button">Close</button>
+    </div>`);
+  const ta=$('nudgeTxt');ta.addEventListener('input',()=>$('waLink').href=wa(ta.value));
+  const sb=$('shareBtn');if(sb)sb.addEventListener('click',()=>{navigator.share({text:ta.value}).catch(()=>{})});
+  $('copyBtn').addEventListener('click',()=>{const done=()=>toast('Message copied');
+    try{navigator.clipboard.writeText(ta.value).then(done,()=>{ta.select();toast('Selected. Use your phone\'s Copy.')})}catch(e){ta.select();toast('Selected. Use your phone\'s Copy.')}});
+}
+
+/* ---------- sheets ---------- */
+function sheet(html){
+  const host=$('sheetHost');
+  host.innerHTML=`<div class="sheetwrap" id="sw"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;
+  $('sw').addEventListener('click',e=>{if(e.target.id==='sw'||e.target.closest('[data-close]'))closeSheet()});
+}
+const closeSheet=()=>{$('sheetHost').innerHTML=''};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+const roleButtons=()=>Object.entries(ROLES).map(([k,r])=>`<button type="button" class="role${state.role===k?' on':''}" data-role="${k}"><span class="av">${r.l}</span><span><b>${r.n}</b><small>${r.d}</small></span></button>`).join('');
+function pickRole(k){state.role=k;save();$('onboard').hidden=true;closeSheet();renderAll();setTab(ROLES[k].tab)}
+$('onRoles').innerHTML=roleButtons();
+$('onRoles').addEventListener('click',e=>{const b=e.target.closest('[data-role]');if(b)pickRole(b.dataset.role)});
+$('meBtn').addEventListener('click',()=>{
+  sheet(`<h4>This phone is for</h4><p>Each person gets the screen they need first. Everyone can still see all three tabs in the alpha.</p>
+    <div class="roles" id="sRoles">${roleButtons()}</div>
+    <h3>App</h3><div class="stack">
+      ${standalone()?'<p style="margin:0">Installed on this phone. Works offline.</p>':'<button class="btn ghost wide" id="instBtn" type="button">Add to home screen</button>'}
+      <span id="resetSlot"><button class="btn ghost wide" id="resetBtn" type="button">Reset sample data</button></span>
+      <button class="btn ghost wide" data-close type="button">Close</button></div>`);
+  $('sRoles').addEventListener('click',e=>{const b=e.target.closest('[data-role]');if(b)pickRole(b.dataset.role)});
+  const ib=$('instBtn');if(ib)ib.addEventListener('click',openInstall);
+  $('resetSlot').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.id==='resetBtn')$('resetSlot').innerHTML='<div class="stack"><p style="margin:0">This wipes every change on this phone.</p><button class="btn primary wide" id="resetYes" type="button">Yes, reset</button></div>';
+    if(b.id==='resetYes'){const r=state.role;state=Object.assign(sample(),{role:r,bannerOff:false});ui.skip.clear();ui.shownCash=0;save();closeSheet();renderAll();toast('Sample data restored')}});
+});
+
+/* ---------- install, offline, badge ---------- */
+const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();ui.deferred=e;renderBanner()});
+window.addEventListener('appinstalled',()=>{state.bannerOff=true;save();renderBanner();toast('Installed. Find it on your home screen.')});
+function renderBanner(){
+  const slot=$('bannerSlot');if(!slot)return;
+  slot.innerHTML=(standalone()||state.bannerOff)?'':`<div class="banner"><div><b>Put it on your home screen</b>Opens like an app and works with no signal.</div><div class="bx"><button class="go" id="bGo" type="button">How</button><button class="x" id="bX" type="button" aria-label="Hide this tip">✕</button></div></div>`;
+  const g=$('bGo');if(g)g.addEventListener('click',openInstall);
+  const x=$('bX');if(x)x.addEventListener('click',()=>{state.bannerOff=true;save();renderBanner()});
+}
+function openInstall(){
+  if(ui.deferred){ui.deferred.prompt();ui.deferred.userChoice.finally(()=>{ui.deferred=null});closeSheet();return}
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  sheet(`<h4>Add to your home screen</h4><p>Gerry's Brain then opens full screen from its own icon, shows how many jobs are waiting, and keeps working with no signal.</p>
+    ${ios?`<ol class="steps"><li>Open this page in <b>Safari</b>.</li><li>Tap the <b>Share</b> button.</li><li>Choose <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol>`
+         :`<ol class="steps"><li>Open this page in <b>Chrome</b>.</li><li>Tap the <b>⋮</b> menu.</li><li>Choose <b>Install app</b> or <b>Add to Home screen</b>.</li></ol>`}
+    <p>Works from the GitHub Pages link. It can't install from inside a preview.</p>
+    <button class="btn primary wide" data-close type="button">Got it</button>`);
+}
+const net=()=>{$('offline').hidden=navigator.onLine};
+window.addEventListener('online',net);window.addEventListener('offline',net);net();
+try{if('serviceWorker' in navigator&&location.protocol==='https:'&&window.top===window.self)navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+
+/* ---------- live clocks, toast, confetti ---------- */
+setInterval(()=>{const now=Date.now();document.querySelectorAll('[data-since]').forEach(el=>el.textContent=clock(now-+el.dataset.since))},1000);
+let undoFn=null,toastT;
+function toast(msg,undo){undoFn=undo||null;$('toastMsg').textContent=msg;$('toastUndo').hidden=!undo;$('toast').hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{$('toast').hidden=true;undoFn=null},4500)}
+$('toastUndo').addEventListener('click',()=>{if(undoFn)undoFn();undoFn=null;$('toast').hidden=true});
+function confetti(){
+  if(reduce)return;
+  const cv=document.createElement('canvas');cv.id='confetti';document.body.appendChild(cv);
+  const dpr=window.devicePixelRatio||1,W=innerWidth,H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  const x=cv.getContext('2d');x.scale(dpr,dpr);
+  const cs=getComputedStyle(document.documentElement),cols=['--brand','--copper','--ok','--amber'].map(v=>cs.getPropertyValue(v).trim());
+  const P=Array.from({length:150},()=>({x:W/2+(Math.random()-.5)*60,y:H*.4,vx:(Math.random()-.5)*12,vy:-Math.random()*13-4,r:Math.random()*6.3,vr:(Math.random()-.5)*.35,w:6+Math.random()*6,h:4+Math.random()*4,c:cols[Math.random()*4|0]}));
+  const s=performance.now();
+  (function f(t){const k=t-s;x.clearRect(0,0,W,H);P.forEach(p=>{p.vy+=.32;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.globalAlpha=Math.max(0,1-k/2600);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore()});if(k<2600)requestAnimationFrame(f);else cv.remove()})(s);
+}
+
+/* ---------- start ---------- */
+renderAll();
+if(!state.role){$('onboard').hidden=false;setTab('price')}else setTab(ROLES[state.role].tab);
+})();
+</script>
+</body>
+</html>
