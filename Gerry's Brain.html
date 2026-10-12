@@ -1,0 +1,534 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Gerry's Brain</title>
+<style>
+/* Layout: teal header band with tabs + demo control; single narrow column; Gerry gets a swipeable card stack */
+:root{
+  --bg:#f2f5f4; --surface:#ffffff; --ink:#1b2928; --muted:#5b6a68; --line:#dbe2e0;
+  --brand:#1f5b57; --brand-ink:#ffffff; --brand-soft:#e2eeeb; --copper:#b0662f; --copper-soft:#f6eadf;
+  --amber:#b7860b; --late:#b3261e; --late-soft:#fbe8e6; --ok:#2e7d4f; --ok-soft:#e4f2e9;
+  --band:#17403d; --band-ink:#eef5f3; --band-muted:#a8c3be; --band-chip:#24524e;
+  --ui:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --num:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111716; --surface:#19211f; --ink:#e3eae8; --muted:#97a6a3; --line:#2b3634;
+  --brand:#5fb3aa; --brand-ink:#0d1413; --brand-soft:#1e2d2b; --copper:#d9915a; --copper-soft:#33251a;
+  --amber:#e0b44a; --late:#f2847a; --late-soft:#3a1d1b; --ok:#7fcf9c; --ok-soft:#1a2d21;
+  --band:#0c1918; --band-ink:#e6efed; --band-muted:#8fa9a4; --band-chip:#1b302e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111716; --surface:#19211f; --ink:#e3eae8; --muted:#97a6a3; --line:#2b3634;
+  --brand:#5fb3aa; --brand-ink:#0d1413; --brand-soft:#1e2d2b; --copper:#d9915a; --copper-soft:#33251a;
+  --amber:#e0b44a; --late:#f2847a; --late-soft:#3a1d1b; --ok:#7fcf9c; --ok-soft:#1a2d21;
+  --band:#0c1918; --band-ink:#e6efed; --band-muted:#8fa9a4; --band-chip:#1b302e; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--ui);margin:0;overflow-x:hidden}
+.wrap{max-width:620px;margin:0 auto;padding-inline:16px;padding-block:0 120px}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--band);color:var(--band-ink)}
+.head{max-width:620px;margin:0 auto;padding:14px 16px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{font-size:1.3rem;margin:0;letter-spacing:-.015em;line-height:1.15}
+h1 span{color:var(--copper)}
+.co{color:var(--band-muted);font-size:.78rem}
+.co b{font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:.66rem;border:1px solid var(--band-chip);border-radius:99px;padding:0 7px;margin-left:6px}
+.play{font:600 .85rem var(--ui);color:var(--band);background:var(--band-ink);border:0;border-radius:99px;padding:8px 14px 8px 12px;cursor:pointer;display:flex;gap:8px;align-items:center;white-space:nowrap}
+.play svg{width:12px;height:12px;fill:currentColor}
+nav{max-width:620px;margin:0 auto;padding:8px 16px 0;display:flex}
+nav button{flex:1;font:600 .9rem var(--ui);color:var(--band-muted);background:none;border:0;border-bottom:3px solid transparent;padding:8px 4px 10px;cursor:pointer;display:flex;gap:7px;justify-content:center;align-items:center}
+nav button[aria-selected="true"]{color:var(--band-ink);border-bottom-color:var(--copper)}
+.count{font:700 .72rem var(--num);background:var(--band-chip);color:var(--band-ink);border-radius:99px;padding:1px 7px}
+.count.late{background:var(--late);color:#fff}
+
+section{padding-top:22px}
+h2{font-size:1.1rem;margin:0 0 4px;text-wrap:balance}
+h3{font-size:.74rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:26px 0 10px;font-weight:650}
+.lead{color:var(--muted);margin:0 0 18px;font-size:.9rem;max-width:60ch}
+label{display:block;font-size:.72rem;font-weight:650;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+input,select,textarea{width:100%;font:16px var(--ui);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:11px 12px;transition:box-shadow .2s,border-color .2s}
+textarea{min-height:64px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.typing{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+.form{display:grid;gap:14px}
+.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media (max-width:480px){.row{grid-template-columns:1fr 1fr}.row .full{grid-column:1/-1}}
+.btn{font:650 .95rem var(--ui);border-radius:9px;border:1px solid transparent;padding:11px 16px;cursor:pointer;transition:transform .1s}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--brand);color:var(--brand-ink)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.small{padding:7px 12px;font-size:.85rem}
+.btn.sent{background:var(--ok);color:var(--brand-ink)}
+.timer{font:600 .8rem var(--num);color:var(--brand)}
+
+/* Gerry stack */
+.stack{position:relative;margin-bottom:22px}
+.ghost-card{position:absolute;inset:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.g1{transform:translateY(9px) scale(.965);opacity:.75}
+.g2{transform:translateY(18px) scale(.93);opacity:.4}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:grid;gap:12px;position:relative;z-index:2;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px -12px rgba(0,0,0,.18)}
+.card.top{touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab;transition:transform .25s ease,opacity .25s}
+.card.late{box-shadow:inset 4px 0 0 var(--late),0 8px 24px -12px rgba(0,0,0,.18)}
+.hint{position:absolute;top:16px;font:800 .78rem var(--ui);letter-spacing:.14em;text-transform:uppercase;border:2px solid;border-radius:6px;padding:2px 9px;pointer-events:none;background:var(--surface);z-index:3}
+.hint.a{left:16px;color:var(--ok);border-color:var(--ok);transform:rotate(-8deg);opacity:var(--pa,0)}
+.hint.e{right:16px;color:var(--copper);border-color:var(--copper);transform:rotate(8deg);opacity:var(--pe,0)}
+.tp{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.cust{font-weight:680;font-size:1.05rem;min-width:0}
+.type{color:var(--muted);font-size:.85rem;font-weight:400}
+.days{font:700 .76rem var(--num);white-space:nowrap;border-radius:99px;padding:2px 9px;background:var(--brand-soft);color:var(--brand)}
+.days.late{background:var(--late-soft);color:var(--late)}
+.tray{display:flex;align-items:baseline;justify-content:space-between;gap:10px;background:var(--bg);border-radius:9px;padding:8px 12px}
+.tray .tl{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:650}
+.clock{font:700 1.05rem var(--num);font-variant-numeric:tabular-nums}
+.clock.late{color:var(--late)}
+.facts{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:.85rem;color:var(--muted)}
+.facts b{color:var(--ink);font:650 .85rem var(--num)}
+.note{font-size:.88rem;border-left:2px solid var(--line);padding-left:10px}
+.strip svg{width:100%;height:42px;display:block}
+.axis{stroke:var(--line);stroke-width:2;stroke-linecap:round}
+.dot{fill:var(--muted);fill-opacity:.5}
+.mk{stroke:var(--copper);stroke-width:2}
+.mkd{fill:var(--copper)}
+.strip-l{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);gap:10px}
+.strip-l .c{color:var(--copper);font-weight:650}
+.price{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:12px}
+.sugg{font:750 1.6rem var(--num);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.basis{font-size:.78rem;color:var(--muted);max-width:40ch}
+.actions{display:flex;gap:8px}
+.edit{display:grid;gap:10px;width:100%}
+.erow{display:flex;align-items:center;gap:8px}
+.erow span{font:700 1.4rem var(--num);color:var(--muted)}
+.erow input{font:700 1.4rem var(--num);max-width:200px;padding:6px 10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:650 .85rem var(--num);background:var(--copper-soft);color:var(--copper);border:0;border-radius:99px;padding:6px 12px;cursor:pointer}
+.swipe-tip{font-size:.78rem;color:var(--muted);text-align:center;margin-top:-6px}
+.next{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.next li{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:.9rem}
+.next li.late{box-shadow:inset 3px 0 0 var(--late)}
+.next small{display:block;color:var(--muted);font-size:.78rem}
+.done-panel{text-align:center;padding:40px 16px;border:1px dashed var(--line);border-radius:var(--r);background:var(--surface)}
+.done-panel .big{font-size:1.8rem;font-weight:750;color:var(--ok);letter-spacing:-.02em}
+.done-panel p{color:var(--muted);margin:8px auto 0;max-width:40ch}
+
+/* Sandra */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.hero .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:650}
+.hv{font:780 2.5rem/1.1 var(--num);font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:4px 0 6px}
+.hs{font-size:.88rem;color:var(--muted)}
+.hs .l{color:var(--late);font-weight:700}
+.aged{display:flex;gap:2px;height:14px;border-radius:99px;overflow:hidden;background:var(--line);margin-top:16px}
+.aged span{min-width:4px}
+.b1{background:var(--brand)}.b2{background:var(--amber)}.b3{background:var(--copper)}.b4{background:var(--late)}
+.legend{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+@media (max-width:440px){.legend{grid-template-columns:1fr 1fr}}
+.legend div{font-size:.76rem;color:var(--muted);display:grid;grid-template-columns:10px 1fr;column-gap:6px;align-items:center}
+.legend i{width:10px;height:10px;border-radius:3px}
+.legend b{grid-column:2;color:var(--ink);font:650 .85rem var(--num)}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+@media (max-width:440px){.tiles{grid-template-columns:1fr 1fr}.tiles div:first-child{grid-column:1/-1}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.tile .v{font:720 1.15rem var(--num);font-variant-numeric:tabular-nums}
+.tile .v.late{color:var(--late)}
+.tile .k{font-size:.74rem;color:var(--muted)}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:650}
+td.n,th.n{text-align:right;font-family:var(--num);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.late td.d{color:var(--late);font-weight:750}
+tbody tr:last-child td{border-bottom:0}
+tfoot td{font-weight:750;border-top:1px solid var(--line);border-bottom:0}
+.sub{font-size:.78rem;color:var(--muted)}
+
+/* chrome */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:9px;display:flex;gap:14px;align-items:center;font-size:.9rem;width:max-content;max-width:calc(100% - 32px);z-index:40}
+body.demo .toast{bottom:calc(112px + env(safe-area-inset-bottom,0px))}
+.toast button{background:none;border:0;color:var(--copper);font:700 .9rem var(--ui);cursor:pointer}
+.demo-bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--band);color:var(--band-ink);padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px))}
+.demo-in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:6px 14px;align-items:center}
+.dprog{grid-column:1/-1;display:flex;gap:4px}
+.dprog i{flex:1;height:3px;border-radius:2px;background:var(--band-chip)}
+.dprog i.on{background:var(--copper)}
+.dtext{font-size:1rem;line-height:1.4;min-height:2.8em}
+.dstop{background:none;border:1px solid var(--band-chip);color:var(--band-ink);border-radius:99px;padding:6px 12px;font:600 .8rem var(--ui);cursor:pointer}
+.foot{margin-top:34px;font-size:.78rem;color:var(--muted);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+@media (prefers-reduced-motion:reduce){.card.top{transition:none}}
+</style>
+
+<header>
+  <div class="head">
+    <div><h1>Gerry's <span>Brain</span></h1><div class="co">Byrne Building Services · Naas<b>Alpha</b></div></div>
+    <button class="play" id="playBtn" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg>Play demo</button>
+  </div>
+  <nav role="tablist">
+    <button role="tab" id="tab-office" data-view="office">Office</button>
+    <button role="tab" id="tab-gerry" data-view="gerry">Gerry <span class="count" id="c-gerry"></span></button>
+    <button role="tab" id="tab-sandra" data-view="sandra">Sandra</button>
+  </nav>
+</header>
+
+<main class="wrap">
+  <section id="office" hidden>
+    <h2>Log a finished job</h2>
+    <p class="lead">It lands in Gerry's queue straight away, with a suggested price. <span class="timer" id="timer"></span></p>
+    <form class="form" id="jobForm" autocomplete="off">
+      <div><label for="f-cust">Customer</label><input id="f-cust" list="custList" required placeholder="e.g. Oakfield Dental Practice"><datalist id="custList"></datalist></div>
+      <div><label for="f-type">Job type</label><select id="f-type" required></select></div>
+      <div class="row">
+        <div class="full"><label for="f-date">Date done</label><input id="f-date" type="date" required></div>
+        <div><label for="f-hours">Hours</label><input id="f-hours" type="number" inputmode="decimal" min="0.5" step="0.5" required placeholder="0"></div>
+        <div><label for="f-mat">Materials €</label><input id="f-mat" type="number" inputmode="decimal" min="0" step="1" required placeholder="0"></div>
+      </div>
+      <div><label for="f-note">Note for Gerry</label><textarea id="f-note" placeholder="Anything that affects the price: call-out, extra visit, access issues"></textarea></div>
+      <button class="btn primary" id="sendBtn" type="submit">Send to Gerry</button>
+    </form>
+    <h3>Logged recently</h3>
+    <ol class="next" id="recent"></ol>
+  </section>
+
+  <section id="gerry" hidden>
+    <h2>Waiting for your price</h2>
+    <p class="lead">Oldest first. Each suggestion comes from what you charged for similar jobs. You have the final say.</p>
+    <div id="stage"></div>
+  </section>
+
+  <section id="sandra" hidden>
+    <h2>Cash waiting on a price</h2>
+    <p class="lead">Values are Gerry's suggested prices until he approves them.</p>
+    <div id="sandraBody"></div>
+  </section>
+
+  <div class="foot">
+    <span>Saved in this browser only. Over 3 days waiting shows red.</span>
+    <span id="resetWrap"><button class="btn ghost small" id="resetBtn" type="button">Reset sample data</button></span>
+  </div>
+</main>
+
+<div class="toast" id="toast" hidden><span id="toastMsg"></span><button id="toastUndo" type="button">Undo</button></div>
+<div class="demo-bar" id="demoBar" hidden><div class="demo-in">
+  <div class="dprog" id="dprog"></div>
+  <div class="dtext" id="dtext" aria-live="polite"></div>
+  <button class="dstop" id="demoStop" type="button">Stop</button>
+</div></div>
+
+<script>
+(function(){
+const KEY='gerrys-brain-v2', LATE=3, MARKUP=1.15, STEPS=6;
+const TYPES=['Consumer unit upgrade','EV charger install','Emergency lighting test & repair','Commercial lighting retrofit','Fault finding','Boiler service','Leak repair','Washroom refit'];
+const $=id=>document.getElementById(id);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const eur=n=>new Intl.NumberFormat('en-IE',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
+const today=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
+const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
+const ago=n=>{const d=today();d.setDate(d.getDate()-n);return iso(d)};
+const daysSince=s=>Math.max(0,Math.round((today()-new Date(s+'T00:00:00'))/864e5));
+const short=s=>new Date(s+'T00:00:00').toLocaleDateString('en-IE',{day:'numeric',month:'short'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const round5=v=>Math.round(v/5)*5;
+const pad=n=>String(n).padStart(2,'0');
+
+function sample(){
+  const h=(type,hours,materials,price,customer)=>({type,hours,materials,price,customer});
+  return {
+    history:[
+      h('Consumer unit upgrade',6,420,1150,'Corban Hall'),h('Consumer unit upgrade',7,460,1280,'Millbrook Business Park, Unit 2'),h('Consumer unit upgrade',5.5,390,1060,'Fairgreen Pharmacy'),
+      h('EV charger install',4,690,1240,'Kilcullen Road Motors'),h('EV charger install',5,720,1390,'Osberstown Offices'),
+      h('Emergency lighting test & repair',3,85,340,'Naas Hockey Club'),h('Emergency lighting test & repair',4,140,455,'Abbey Bridge Hotel'),h('Emergency lighting test & repair',2.5,60,285,'Poplar Square Dental'),
+      h('Commercial lighting retrofit',14,1850,3950,'Millbrook Business Park, Unit 7'),h('Commercial lighting retrofit',18,2300,4980,'Kerrigan Logistics'),
+      h('Fault finding',2.5,20,220,'Riverside Café'),h('Fault finding',4,65,375,'Poplar Square Dental'),
+      h('Boiler service',2,35,165,"St Brigid's Parish Hall"),h('Boiler service',2.5,60,210,'Johnstown Crèche'),
+      h('Leak repair',3,75,310,'Harbour View Apartments'),h('Leak repair',2,40,205,'Main St Barbers'),
+      h('Washroom refit',32,2900,6950,'Osberstown Offices')
+    ],
+    jobs:[
+      {customer:'Naas Hockey Club',type:'Emergency lighting test & repair',d:25,hours:3.5,materials:110,note:'Two bulkheads in rear stairwell replaced. Cert to follow.'},
+      {customer:'Oakfield Dental Practice',type:'Washroom refit',d:18,hours:28,materials:2650,note:'Staff and patient washrooms. Customer supplied the vanity units.'},
+      {customer:'Millbrook Business Park, Unit 4',type:'Commercial lighting retrofit',d:13,hours:16,materials:2080,note:'LED panels across warehouse and office. Hired scissor lift for 2 days.'},
+      {customer:'Riverside Café',type:'Leak repair',d:9,hours:2.5,materials:55,note:'Under-sink trap and isolation valve.'},
+      {customer:'Abbey Bridge Hotel',type:'Fault finding',d:6,hours:3,materials:30,note:'Tripping RCD traced to kitchen extractor.'},
+      {customer:'Johnstown Crèche',type:'Boiler service',d:4,hours:2,materials:45,note:''},
+      {customer:'Kilcullen Road Motors',type:'EV charger install',d:2,hours:4.5,materials:705,note:'Second charger on the forecourt, 22 kW.'},
+      {customer:'Corban Hall',type:'Consumer unit upgrade',d:1,hours:6,materials:440,note:'Board was full. Added RCBOs for the new kitchen circuits.'}
+    ].map((j,i)=>({id:uid(),customer:j.customer,type:j.type,done:ago(j.d),hours:j.hours,materials:j.materials,note:j.note,status:'waiting',loggedAt:new Date(ago(j.d)+'T17:30:00').getTime()+i}))
+  };
+}
+
+let state; try{state=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!state||!state.jobs||!state.history)state=sample();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+const find=id=>state.jobs.find(j=>j.id===id);
+const waiting=()=>state.jobs.filter(j=>j.status==='waiting').sort((a,b)=>a.done.localeCompare(b.done)||a.loggedAt-b.loggedAt);
+
+/* time in the tray: from 5pm on the day done, or from logging if logged later that day */
+function startOf(j){const s=new Date(j.done+'T17:00:00').getTime();return (j.loggedAt&&j.loggedAt>s)?j.loggedAt:Math.min(s,Date.now())}
+function clock(ms){ms=Math.max(0,ms);const s=Math.floor(ms/1000);return `${Math.floor(s/86400)}d ${pad(Math.floor(s%86400/3600))}:${pad(Math.floor(s%3600/60))}:${pad(s%60)}`}
+
+function median(a){const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2}
+function suggest(job){
+  let pool=state.history.filter(h=>h.type===job.type);const same=pool.length>0;
+  if(!same)pool=state.history;
+  const rates=pool.filter(h=>h.hours>0).map(h=>(h.price-h.materials*MARKUP)/h.hours);
+  const rate=rates.length?median(rates):60;
+  const price=round5(job.hours*rate+job.materials*MARKUP);
+  const prices=pool.map(h=>h.price);
+  const basis=same
+    ? `From ${pool.length} past ${job.type.toLowerCase()} job${pool.length>1?'s':''} (${eur(Math.min(...prices))}–${eur(Math.max(...prices))}). About ${eur(rate)}/hr plus materials +15%.`
+    : `No past ${job.type.toLowerCase()} jobs yet. Using your overall rate, about ${eur(rate)}/hr plus materials +15%.`;
+  return {price,basis,same,prices};
+}
+
+/* ---------- navigation ---------- */
+function setView(v){
+  ['office','gerry','sandra'].forEach(k=>{$(k).hidden=k!==v;$('tab-'+k).setAttribute('aria-selected',k===v)});
+  try{localStorage.setItem(KEY+'-view',v)}catch(e){}
+  if(v==='sandra')renderSandra();
+  if(!demo.on)window.scrollTo({top:0});
+}
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{if(!demo.on)setView(b.dataset.view)}));
+
+function render(){
+  const w=waiting(),lateN=w.filter(j=>daysSince(j.done)>LATE).length;
+  const c=$('c-gerry');c.textContent=w.length;c.className='count'+(lateN?' late':'');
+  renderOffice();renderGerry();renderSandra();
+}
+
+/* ---------- Office ---------- */
+function renderOffice(){
+  const sel=$('f-type');
+  if(!sel.options.length)sel.innerHTML='<option value="" disabled selected>Choose a job type</option>'+TYPES.map(t=>`<option>${esc(t)}</option>`).join('');
+  const names=[...new Set([...state.jobs.map(j=>j.customer),...state.history.map(h=>h.customer)])].sort();
+  $('custList').innerHTML=names.map(n=>`<option value="${esc(n)}"></option>`).join('');
+  const recent=[...state.jobs].sort((a,b)=>b.loggedAt-a.loggedAt).slice(0,3);
+  $('recent').innerHTML=recent.map(j=>`<li><span>${esc(j.customer)}<small>${esc(j.type)} · done ${short(j.done)}</small></span>${j.status==='waiting'?'<span class="days">With Gerry</span>':`<span class="days" style="background:var(--ok-soft);color:var(--ok)">${eur(j.price)}</span>`}</li>`).join('');
+}
+const form=$('jobForm');
+$('f-date').value=iso(today());$('f-date').max=iso(today());
+let t0=null,tI=null;
+form.addEventListener('input',()=>{if(!t0){t0=Date.now();clearInterval(tI);tI=setInterval(()=>{$('timer').textContent='Timer: '+Math.round((Date.now()-t0)/1000)+'s'},250)}});
+form.addEventListener('submit',e=>{
+  e.preventDefault();
+  const g=id=>$(id).value.trim();
+  const job={id:uid(),customer:g('f-cust'),type:g('f-type'),done:g('f-date'),hours:parseFloat(g('f-hours')),materials:parseFloat(g('f-mat'))||0,note:g('f-note'),status:'waiting',loggedAt:Date.now()};
+  if(!job.customer||!job.type||!job.done||!(job.hours>0))return;
+  state.jobs.push(job);save();
+  const secs=t0?Math.max(1,Math.round((Date.now()-t0)/1000)):null;clearInterval(tI);t0=null;
+  form.reset();$('f-date').value=iso(today());$('timer').textContent='';
+  const b=$('sendBtn');b.textContent='Sent to Gerry ✓';b.classList.add('sent');setTimeout(()=>{b.textContent='Send to Gerry';b.classList.remove('sent')},1600);
+  render();buzz();
+  toast(`Logged${secs?` in ${secs}s`:''}. Gerry sees ${eur(suggest(job).price)} suggested.`,()=>{state.jobs=state.jobs.filter(j=>j!==job);save();render()});
+});
+
+/* ---------- Gerry ---------- */
+function strip(s){
+  if(!s.same)return '';
+  const all=[...s.prices,s.price];let lo=Math.min(...all),hi=Math.max(...all);
+  if(hi-lo<40){lo-=40;hi+=40}const p=(hi-lo)*.06;lo-=p;hi+=p;
+  const X=v=>(14+(v-lo)/(hi-lo)*272).toFixed(1);
+  return `<div class="strip"><svg viewBox="0 0 300 42" role="img" aria-label="Past prices ${s.prices.map(eur).join(', ')}; suggestion ${eur(s.price)}">
+    <line class="axis" x1="10" x2="290" y1="21" y2="21"/>
+    ${s.prices.map(v=>`<circle class="dot" cx="${X(v)}" cy="21" r="6"><title>Past job ${eur(v)}</title></circle>`).join('')}
+    <line class="mk" x1="${X(s.price)}" x2="${X(s.price)}" y1="5" y2="37"/><rect class="mkd" x="${X(s.price)-5}" y="16" width="10" height="10" transform="rotate(45 ${X(s.price)} 21)"/>
+  </svg><div class="strip-l"><span>Your past prices for this job type</span><span class="c">Suggestion</span></div></div>`;
+}
+function priceRow(s){return `<div><div class="sugg">${eur(s.price)}</div><div class="basis">${esc(s.basis)}</div></div>
+  <div class="actions"><button class="btn primary" data-act="approve" type="button">Approve</button><button class="btn ghost" data-act="edit" type="button">Edit</button></div>`}
+function card(j){
+  const d=daysSince(j.done),late=d>LATE,s=suggest(j),st=startOf(j);
+  return `<article class="card top${late?' late':''}" id="topCard" data-id="${j.id}">
+    <div class="hint a">Approve</div><div class="hint e">Edit</div>
+    <div class="tp"><div class="cust">${esc(j.customer)}<div class="type">${esc(j.type)}</div></div><span class="days${late?' late':''}">${d} day${d===1?'':'s'}</span></div>
+    <div class="tray"><span class="tl">In the tray</span><span class="clock${late?' late':''}" data-since="${st}">${clock(Date.now()-st)}</span></div>
+    <div class="facts"><span>Done <b>${short(j.done)}</b></span><span>Hours <b>${j.hours}</b></span><span>Materials <b>${eur(j.materials)}</b></span></div>
+    ${j.note?`<div class="note">${esc(j.note)}</div>`:''}
+    ${strip(s)}
+    <div class="price">${priceRow(s)}</div>
+  </article>`;
+}
+function renderGerry(){
+  const w=waiting();
+  if(!w.length){
+    const ready=state.jobs.filter(j=>j.status==='priced');
+    $('stage').innerHTML=`<div class="done-panel"><div class="big">Tray empty</div><p>Every finished job has a price. ${ready.length} job${ready.length===1?'':'s'} worth ${eur(ready.reduce((a,j)=>a+j.price,0))} ready for Sandra to invoice.</p></div>`;
+    return;
+  }
+  $('stage').innerHTML=`<div class="stack">${w.length>2?'<div class="ghost-card g2"></div>':''}${w.length>1?'<div class="ghost-card g1"></div>':''}${card(w[0])}</div>
+    <div class="swipe-tip">Swipe right to approve, left to edit. Or use the buttons.</div>
+    ${w.length>1?`<h3>Up next · ${w.length-1}</h3><ol class="next">${w.slice(1).map(j=>{const d=daysSince(j.done);return `<li class="${d>LATE?'late':''}"><span>${esc(j.customer)}<small>${esc(j.type)} · ${eur(suggest(j).price)} suggested</small></span><span class="days${d>LATE?' late':''}">${d}d</span></li>`}).join('')}</ol>`:''}`;
+  bindSwipe();
+}
+function flyOut(c,dir,cb){
+  if(reduce){cb();return}
+  c.style.transition='transform .34s cubic-bezier(.5,0,.75,0), opacity .34s';
+  c.style.transform=`translateX(${dir*130}%) rotate(${dir*14}deg)`;c.style.opacity='0';
+  setTimeout(cb,320);
+}
+function openEdit(c,job){
+  const s=suggest(job),box=c.querySelector('.price');
+  c.style.transform='';c.style.setProperty('--pe',0);
+  box.innerHTML=`<div class="edit">
+    <div class="erow"><span>€</span><input id="editPrice" type="number" inputmode="decimal" min="0" step="5" value="${s.price}" aria-label="Your price"></div>
+    <div class="chips">${[-10,-5,5,10].map(p=>`<button type="button" class="chip" data-pct="${p}">${p>0?'+':'−'}${Math.abs(p)}%</button>`).join('')}</div>
+    <div class="actions"><button class="btn primary" data-act="save" type="button">Save price</button><button class="btn ghost" data-act="cancel" type="button">Cancel</button></div></div>`;
+  const inp=$('editPrice');
+  if(!demo.on){inp.focus();inp.select()}
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')box.querySelector('[data-act=save]').click()});
+}
+$('stage').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const c=b.closest('.card');if(!c)return;
+  const job=find(c.dataset.id),s=suggest(job);
+  if(b.dataset.act==='approve')flyOut(c,1,()=>price(job,s.price,false));
+  else if(b.dataset.act==='edit')openEdit(c,job);
+  else if(b.dataset.act==='cancel')renderGerry();
+  else if(b.dataset.pct)$('editPrice').value=round5(s.price*(1+ +b.dataset.pct/100));
+  else if(b.dataset.act==='save'){const v=Math.round(parseFloat($('editPrice').value));if(v>0)flyOut(c,1,()=>price(job,v,v!==s.price))}
+});
+function bindSwipe(){
+  const c=$('topCard');if(!c)return;
+  let x0=null,dx=0;
+  c.addEventListener('pointerdown',e=>{if(e.target.closest('button,input')||demo.on||c.querySelector('.edit'))return;x0=e.clientX;dx=0;c.setPointerCapture(e.pointerId);c.style.transition='none'});
+  c.addEventListener('pointermove',e=>{if(x0===null)return;dx=e.clientX-x0;c.style.transform=`translateX(${dx}px) rotate(${dx/25}deg)`;c.style.setProperty('--pa',Math.max(0,Math.min(1,dx/100)));c.style.setProperty('--pe',Math.max(0,Math.min(1,-dx/100)))});
+  const end=()=>{if(x0===null)return;x0=null;c.style.transition='';const job=find(c.dataset.id);
+    if(dx>100)flyOut(c,1,()=>price(job,suggest(job).price,false));
+    else{c.style.transform='';c.style.setProperty('--pa',0);c.style.setProperty('--pe',0);if(dx<-100)openEdit(c,job)}};
+  c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);
+}
+function price(job,p,edited){
+  const prev={status:job.status};
+  job.status='priced';job.price=p;job.pricedAt=Date.now();job.edited=edited;
+  const h={type:job.type,hours:job.hours,materials:job.materials,price:p,customer:job.customer,jobId:job.id};
+  state.history.push(h);save();render();buzz();
+  if(!waiting().length)confetti();
+  toast(`${job.customer}: ${eur(p)}${edited?' (your price)':''}`,()=>{job.status=prev.status;delete job.price;delete job.pricedAt;delete job.edited;state.history=state.history.filter(x=>x!==h);save();render()});
+}
+
+/* ---------- Sandra ---------- */
+let shownHero=0;
+function renderSandra(){
+  const w=waiting(),vals=w.map(j=>({j,d:daysSince(j.done),v:suggest(j).price}));
+  const total=vals.reduce((a,x)=>a+x.v,0),lateV=vals.filter(x=>x.d>LATE),lateT=lateV.reduce((a,x)=>a+x.v,0);
+  const B=[['0–3 days',0,3,'b1'],['4–7 days',4,7,'b2'],['8–14 days',8,14,'b3'],['15+ days',15,1e9,'b4']].map(([k,lo,hi,c])=>({k,c,v:vals.filter(x=>x.d>=lo&&x.d<=hi).reduce((a,x)=>a+x.v,0)}));
+  const priced=state.jobs.filter(j=>j.status==='priced');
+  const match=priced.length?Math.round(priced.filter(j=>!j.edited).length/priced.length*100):null;
+  const readyT=priced.reduce((a,j)=>a+j.price,0);
+  $('sandraBody').innerHTML=`
+    <div class="hero"><div class="k">Waiting on a price</div><div class="hv" id="heroV">${eur(shownHero)}</div>
+      <div class="hs">${w.length} job${w.length===1?'':'s'}${lateV.length?` · <span class="l">${eur(lateT)} waiting over ${LATE} days</span>`:''}</div>
+      <div class="aged" role="img" aria-label="Aged analysis: ${B.map(b=>b.k+' '+eur(b.v)).join(', ')}">${total?B.filter(b=>b.v).map(b=>`<span class="${b.c}" style="flex:${b.v}"></span>`).join(''):''}</div>
+      <div class="legend">${B.map(b=>`<div><i class="${b.c}"></i>${b.k}<b>${eur(b.v)}</b></div>`).join('')}</div>
+    </div>
+    <div class="tiles">
+      <div class="tile"><div class="v${lateV.length?' late':''}" id="trayTotal">${clock(w.reduce((a,j)=>a+(Date.now()-startOf(j)),0))}</div><div class="k">Combined time in the tray</div></div>
+      <div class="tile"><div class="v">${match===null?'–':match+'%'}</div><div class="k">${priced.length?`Suggestions Gerry kept (${priced.length})`:'Suggestions Gerry kept'}</div></div>
+      <div class="tile"><div class="v">${eur(readyT)}</div><div class="k">Ready to invoice</div></div>
+    </div>
+    <h3>Waiting, oldest first</h3>
+    <div class="tbl"><table><thead><tr><th>Customer / job</th><th class="n">Done</th><th class="n">Days</th><th class="n">Value</th></tr></thead>
+      <tbody>${vals.length?vals.map(x=>`<tr class="${x.d>LATE?'late':''}"><td>${esc(x.j.customer)}<div class="sub">${esc(x.j.type)}</div></td><td class="n">${short(x.j.done)}</td><td class="n d">${x.d}</td><td class="n">${eur(x.v)}</td></tr>`).join(''):'<tr><td colspan="4" class="sub">Nothing waiting on a price.</td></tr>'}</tbody>
+      ${vals.length?`<tfoot><tr><td colspan="3">Total</td><td class="n">${eur(total)}</td></tr></tfoot>`:''}</table></div>
+    <h3>Priced, ready to invoice</h3>
+    <div class="tbl"><table><thead><tr><th>Customer / job</th><th class="n">Waited</th><th class="n">Price</th></tr></thead>
+      <tbody>${priced.length?[...priced].sort((a,b)=>b.pricedAt-a.pricedAt).map(j=>`<tr><td>${esc(j.customer)}<div class="sub">${esc(j.type)}${j.edited?' · Gerry changed it':''}</div></td><td class="n">${Math.max(0,Math.round((j.pricedAt-new Date(j.done+'T00:00:00'))/864e5))} d</td><td class="n">${eur(j.price)}</td></tr>`).join(''):`<tr><td colspan="3" class="sub">Nothing priced yet. Jobs Gerry approves appear here.</td></tr>`}</tbody>
+      ${priced.length?`<tfoot><tr><td colspan="2">Ready to invoice</td><td class="n">${eur(readyT)}</td></tr></tfoot>`:''}</table></div>`;
+  if(!$('sandra').hidden)countTo($('heroV'),total);
+}
+let raf=null;
+function countTo(el,to){
+  const from=shownHero;shownHero=to;cancelAnimationFrame(raf);
+  if(reduce||from===to){el.textContent=eur(to);return}
+  const s=performance.now(),D=1100;
+  const step=t=>{const k=Math.min(1,(t-s)/D),e=1-Math.pow(1-k,3);const n=$('heroV');if(n)n.textContent=eur(from+(to-from)*e);if(k<1)raf=requestAnimationFrame(step)};
+  raf=requestAnimationFrame(step);
+}
+
+/* ---------- live clocks ---------- */
+setInterval(()=>{
+  const now=Date.now();
+  document.querySelectorAll('[data-since]').forEach(el=>el.textContent=clock(now-+el.dataset.since));
+  const t=$('trayTotal');if(t)t.textContent=clock(waiting().reduce((a,j)=>a+(now-startOf(j)),0));
+},1000);
+
+/* ---------- feedback ---------- */
+let undoFn=null,toastT;
+function toast(msg,undo){
+  undoFn=undo;$('toastMsg').textContent=msg;$('toast').hidden=false;$('toastUndo').hidden=!undo||demo.on;
+  clearTimeout(toastT);toastT=setTimeout(()=>{$('toast').hidden=true;undoFn=null},4500);
+}
+$('toastUndo').addEventListener('click',()=>{if(undoFn)undoFn();undoFn=null;$('toast').hidden=true});
+function buzz(){try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}}
+function confetti(){
+  if(reduce)return;
+  const cv=document.createElement('canvas');cv.id='confetti';document.body.appendChild(cv);
+  const dpr=window.devicePixelRatio||1,W=innerWidth,H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  const x=cv.getContext('2d');x.scale(dpr,dpr);
+  const cs=getComputedStyle(document.documentElement),cols=['--brand','--copper','--ok','--amber'].map(v=>cs.getPropertyValue(v).trim());
+  const P=Array.from({length:160},()=>({x:W/2+(Math.random()-.5)*80,y:H*.35,vx:(Math.random()-.5)*13,vy:-Math.random()*13-4,r:Math.random()*6.28,vr:(Math.random()-.5)*.35,w:6+Math.random()*6,h:4+Math.random()*4,c:cols[Math.random()*4|0]}));
+  const s=performance.now();
+  (function f(t){const k=t-s;x.clearRect(0,0,W,H);P.forEach(p=>{p.vy+=.32;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.globalAlpha=Math.max(0,1-k/2600);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore()});
+    if(k<2600)requestAnimationFrame(f);else cv.remove()})(s);
+}
+
+/* ---------- reset ---------- */
+const rw=$('resetWrap');
+rw.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.id==='resetBtn'){rw.innerHTML='<span>Wipe all changes? </span><button class="btn primary small" id="resetYes" type="button">Yes, reset</button> <button class="btn ghost small" id="resetNo" type="button">Keep</button>'}
+  else{if(b.id==='resetYes'){state=sample();save();shownHero=0;render()}rw.innerHTML='<button class="btn ghost small" id="resetBtn" type="button">Reset sample data</button>'}
+});
+
+/* ---------- guided demo ---------- */
+const demo={on:false,stop:false};
+const sleep=ms=>new Promise((res,rej)=>setTimeout(()=>demo.stop?rej(new Error('stop')):res(),ms));
+function say(n,t){$('dprog').innerHTML=Array.from({length:STEPS},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('');$('dtext').textContent=t}
+async function typeInto(id,text){
+  const el=$(id);el.classList.add('typing');el.scrollIntoView({block:'center',behavior:reduce?'auto':'smooth'});el.value='';
+  for(const ch of text){el.value+=ch;el.dispatchEvent(new Event('input',{bubbles:true}));await sleep(reduce?0:42)}
+  el.classList.remove('typing');
+}
+async function demoSwipe(){
+  const c=$('topCard');if(!c)return;const job=find(c.dataset.id);
+  c.style.transition='none';
+  for(let i=1;i<=14;i++){const dx=i*9;c.style.transform=`translateX(${dx}px) rotate(${dx/25}deg)`;c.style.setProperty('--pa',Math.min(1,dx/100));await sleep(28)}
+  await sleep(250);c.style.transition='';
+  flyOut(c,1,()=>price(job,suggest(job).price,false));
+}
+const tap=sel=>{const el=document.querySelector(sel);if(el)el.click()};
+async function runDemo(){
+  if(demo.on)return;demo.on=true;demo.stop=false;
+  document.body.classList.add('demo');$('demoBar').hidden=false;$('playBtn').disabled=true;
+  try{
+    state=sample();save();shownHero=0;render();
+    setView('sandra');window.scrollTo({top:0});
+    say(1,'Byrne Building Services, Naas. Look at the cash sitting in Gerry\'s tray, some of it for 25 days.');await sleep(5200);
+    setView('office');window.scrollTo({top:0});
+    say(2,'4pm. The office logs a finished job from a phone.');await sleep(1400);
+    await typeInto('f-cust','Sallins Road Pharmacy');
+    $('f-type').classList.add('typing');$('f-type').value='Emergency lighting test & repair';await sleep(700);$('f-type').classList.remove('typing');
+    await typeInto('f-hours','3');await typeInto('f-mat','95');
+    await typeInto('f-note','Exit signs in the dispensary replaced. Cert done.');await sleep(600);
+    $('sendBtn').scrollIntoView({block:'center'});await sleep(400);
+    form.requestSubmit?form.requestSubmit():form.dispatchEvent(new Event('submit',{cancelable:true}));
+    await sleep(2400);
+    setView('gerry');window.scrollTo({top:0});
+    say(3,'Gerry sees the oldest job first. The suggested price comes from what he charged before. The clock shows how long it has waited.');await sleep(5600);
+    say(4,'He agrees with the price. One swipe.');await sleep(1500);
+    await demoSwipe();await sleep(2400);
+    say(5,'This one he wants higher. Edit, add 5%, save. Pricing stays with Gerry.');await sleep(1600);
+    tap('#topCard [data-act=edit]');await sleep(1300);
+    tap('#topCard [data-pct="5"]');await sleep(1300);
+    tap('#topCard [data-act=save]');await sleep(2400);
+    setView('sandra');window.scrollTo({top:0});
+    say(6,'Sandra sees the cash free up as he prices. Pricing stays with Gerry. The waiting doesn\'t.');await sleep(7000);
+  }catch(e){}
+  demo.on=false;document.body.classList.remove('demo');$('demoBar').hidden=true;$('playBtn').disabled=false;
+  document.querySelectorAll('.typing').forEach(el=>el.classList.remove('typing'));
+}
+$('playBtn').addEventListener('click',runDemo);
+$('demoStop').addEventListener('click',()=>{demo.stop=true});
+
+let v='gerry';try{v=localStorage.getItem(KEY+'-view')||'gerry'}catch(e){}
+render();setView(['office','gerry','sandra'].includes(v)?v:'gerry');
+})();
+</script>
+
+</body></html>
